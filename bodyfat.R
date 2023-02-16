@@ -17,4 +17,24 @@ library(olsrr)
 library(PerformanceAnalytics)
 library(correlation)
 
+#Site de Origem da Base de Dados - http://staff.pubhealth.ku.dk/~tag/Teaching/share/data/Bodyfat.html
+
+# Passo 1 - Descrevendo o problema de Negócio
+
+## A partir de um estudo realizado com 252 indivíduos, coletaram-se diversas amostras com as medidas corporais.
+## A variável Y (Preditora) recebe o nome de "BodyFat" que corresponde ao total de gordura acumulada do indivíduo.
+## Nosso objetivo com este estudo é inferir o volume de gordura total a partir de novas
+
+
+
+
+
+Bodyfat <- read_csv("dados/Bodyfat.csv")
+# tirando uma variavel que nao sera usada (contexto negocio)
+Bodyfat <- Bodyfat %>%
+  select(-Density)
+View(Bodyfat)
+
+
+
 
