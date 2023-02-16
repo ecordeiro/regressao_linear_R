@@ -23,7 +23,11 @@ library(correlation)
 
 ## A partir de um estudo realizado com 252 indivíduos, coletaram-se diversas amostras com as medidas corporais.
 ## A variável Y (Preditora) recebe o nome de "BodyFat" que corresponde ao total de gordura acumulada do indivíduo.
-## Nosso objetivo com este estudo é inferir o volume de gordura total a partir de novas
+## Nosso objetivo com este estudo é inferir quais medidas coletadas posteriormente serão suficientes para prever o volume total de gordura do indivíduo para otimizar o trabalho.
+
+# Passo 2 - Análise Descritiva Univariada
+
+
 
 
 
