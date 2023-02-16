@@ -17,3 +17,4 @@ library(olsrr)
 library(PerformanceAnalytics)
 library(correlation)
 
+#meu primeiro commit
