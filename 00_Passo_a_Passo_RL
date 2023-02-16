@@ -1,0 +1,24 @@
+### Passo a Passo da Construção de um Modelo de RL
+
+1 - Entender o problema de negócio. Assim eu consigo entender o que é o Y.
+
+- Criação da ABT com as variáveis X.
+- Fazer um belo dicionário de Dados. Não apenas a documentação, conversar com a base de dados.
+    - Está fazendo sentido esta variável?
+    - O que me diz cada variável?
+    - Levantar perguntas sobre as variáveis.
+    - anotar as observações de cada uma das variáveis (Ex. esta variável é totalmente assimétrica, eu devo anotar tudo para me precaver na hora de fazer a análise de resíduos da regressão)
+- Fazer uma boa descritiva univariada, usando estatísticas básicas para que eu tenha domínio do que há na base. Isso antes de entrar na ABT. Média, mediana, percentis, frequências, quartis etc.
+
+2 - Bivariada  (Features Selection) - vou começar a cruzar as variáveis buscando a multicolinearidade.
+
+- Existem variáveis x altamente correlacionadas?
+- eu não posso colocar as duas no modelo, procuro o negócio para entender.
+
+3 - Modelo, escolhendo o melhor modelo.
+
+4 - Faço análise de resíduos. Se não passou nesta etapa, devo voltar um passo para a Bivariada - Feature Selection.
+
+5 - Valido VIF por segurança, para ver se não estourou nada.
+
+6 - Interpreto as medidas para entender se é satisfatório. R2, R2 ajustados, medidas de qualidade de modelos etc etc.
