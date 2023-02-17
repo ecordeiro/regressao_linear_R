@@ -1,5 +1,3 @@
-#Vamos começar a brincadeira#####################
-
 #1. Carregando Pacotes#####
 library(readr)
 library(openxlsx) #biblioteca para escrever arquivo em excel
@@ -17,6 +15,12 @@ library(olsrr)
 library(PerformanceAnalytics)
 library(correlation)
 
+path = "D:\\OneDrive\\Pessoal\\ASN.Rocks\\Regressão Linear\\Trabalho\\regressao_linear_R"
+
+setwd(path)
+
+getwd()
+
 #Site de Origem da Base de Dados - http://staff.pubhealth.ku.dk/~tag/Teaching/share/data/Bodyfat.html
 
 # Passo 1 - Descrevendo o problema de Negócio
@@ -28,11 +32,6 @@ library(correlation)
 # Passo 2 - Análise Descritiva Univariada
 
 
-
-
-
-
-
 Bodyfat <- read_csv("dados/Bodyfat.csv")
 # tirando uma variavel que nao sera usada (contexto negocio)
 Bodyfat <- Bodyfat %>%
@@ -40,14 +39,7 @@ Bodyfat <- Bodyfat %>%
 View(Bodyfat)
 
 
-
-
-
-#3. Brincando e aprendendo com o problema Bodyfat#####################################################
-# exercício BODYFAT
-# importando CSV que foi baixado em: http://staff.pubhealth.ku.dk/~tag/Teaching/share/data/Bodyfat.html
-Bodyfat <- read_csv("dados/Bodyfat.csv")
-# tirando uma variavel que nao sera usada (contexto negocio)
-Bodyfat <- Bodyfat %>%
-  select(-Density)
-View(Bodyfat)
+summary(Bodyfat$Abdomen)
+sd(Bodyfat$Abdomen)
+hist(Bodyfat$Abdomen)
+boxplot(Bodyfat$Abdomen)

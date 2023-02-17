@@ -1,0 +1,258 @@
+---
+title: "Trabalho ASN para criar modelo de Regressão Linear Bodyfat"
+output: Modelo de Regressão Linear
+---
+
+Estimativa de Gordura corporal e várias medidas de circunferencias para 252 homens.
+
+
+```{r include=FALSE}
+library(readr)
+library(openxlsx) #biblioteca para escrever arquivo em excel
+library(haven)
+library(readxl)
+library(tidyverse)
+library(yardstick) #biblioteca para calcular medidas de erro
+library(lmtest) # calcula o teste de homogeneidade de variancia
+library(car) # calcula vif
+library(ggraph)
+library(plotly)
+library(ggstance)
+library(jtools)
+library(olsrr)
+library(PerformanceAnalytics)
+library(correlation)
+library(dplyr)
+```
+
+```{r}
+path = "D:\\OneDrive\\Pessoal\\ASN.Rocks\\Regressão Linear\\Trabalho\\regressao_linear_R"
+
+setwd(path)
+```
+
+
+Lê o arquivo do *Bodyfat.csv* e carrega o dataframe.
+
+
+```{r}
+
+Bodyfat <- read_csv("dados/Bodyfat.csv")
+# tirando uma variavel que nao sera usada (contexto negocio)
+Bodyfat <- Bodyfat %>%
+  select(-Density)
+```
+
+Variável dependente Abdomen:
+
+Analisando os dados estatisticos.
+
+
+```{r}
+summary(Bodyfat$Abdomen)
+```
+
+```{r}
+sd(Bodyfat$Abdomen)
+```
+```{r}
+hist(Bodyfat$Abdomen)
+```
+
+```{r}
+boxplot(Bodyfat$Abdomen)
+```
+Analisa os outliers
+
+```{r}
+
+Bodyfat_abd = Bodyfat[order(Bodyfat$Abdomen),]
+
+tail(Bodyfat_abd ,3)
+```
+
+Identificando se a variável segue uma distribuição normal
+
+
+Teste de Shapiro-Wilk
+
+Vamos utilizar um vetor que irá conter os dados.
+
+Hipóteses:
+
+H0: Os dados seguem a distribuição normal
+H1: Os dados não seguem a distribuição normal
+
+Para a realização desse teste é necessário a instalação do pacote nortest
+
+```{r}
+# Carrega pacote
+library(nortest) 
+ 
+# Realiza o teste
+testeShapiro <- shapiro.test(Bodyfat$Abdomen)
+
+# Exibe teste
+testeShapiro
+
+```
+```{r}
+filter(Bodyfat, is.na(Abdomen))
+```
+
+*Observações Abdomen*:
+
+Percebe-se que o desvio padrão dos dados é relativamente baixo, comparando com os valores disponíveis.
+
+Analisei os maiores valores e menores valores e percebi que não existem valores "incorretos ou inviáveis"
+
+A distribuição não é normal e percebi a presença de outliers nos grandes valores.
+
+-----------------------------------------------------------------------------------------------------------------------
+
+Variável dependente Hip(Quadril):
+
+Analisando os dados estatisticos.
+
+```{r}
+
+summary(Bodyfat$Hip)
+sd(Bodyfat$Hip)
+hist(Bodyfat$Hip)
+boxplot(Bodyfat$Hip)
+
+#Analisando os outliers
+Bodyfat_hip = Bodyfat[order(Bodyfat$Hip),]
+tail(Bodyfat_hip ,3)
+
+# Carrega pacote
+library(nortest) 
+ 
+# Realiza o teste
+testeShapiro <- shapiro.test(Bodyfat$Hip)
+
+# Exibe teste
+testeShapiro
+
+
+filter(Bodyfat, is.na(Hip))
+
+```
+
+*Observações Hip(Quadril)*
+
+Observa-se um baixo desvio padrão, mas com algumas ocorrencias de outliers.
+
+A distribuição não é normal e e percebi que não existem valores "incorretos ou inviáveis".
+
+Ao pesquisar sobre o Quadril, encontrei no site abaixo uma relação entre Abdomen e Quadril. Talvez seja interessante ter uma 
+nova variável abrindo novas possibilidades de melhoria do modelo.
+
+https://vitat.com.br/relacao-cintura-quadril/
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Variável dependente Thigh(Coxa):
+
+Analisando os dados estatisticos.
+
+```{r}
+
+summary(Bodyfat$Thigh)
+sd(Bodyfat$Thigh)
+hist(Bodyfat$Thigh)
+boxplot(Bodyfat$Thigh)
+
+#Analisando os outliers
+Bodyfat_Thigh = Bodyfat[order(Bodyfat$Thigh),]
+tail(Bodyfat_Thigh ,4)
+
+# Carrega pacote
+library(nortest) 
+ 
+# Realiza o teste
+testeShapiro <- shapiro.test(Bodyfat$Thigh)
+
+# Exibe teste
+testeShapiro
+
+
+filter(Bodyfat, is.na(Thigh))
+
+```
+*Observações Thigh(Coxa)*
+
+Observa-se um baixo desvio padrão, mas com ocorrencias de outliers um pouco maior do que as anteriores.
+
+A distribuição não é normal e e percebi que não existem valores "incorretos ou inviáveis".
+
+Não encontrei nenhuma particularidade sobre a coxa em relação as demais partes do corpo
+
+----------------------------------------------------------------------------------------------------------------------
+*Variável dependente Knee(Joelho):*
+
+Analisando os dados estatisticos.
+
+
+```{r}
+
+summary(Bodyfat$Knee)
+sd(Bodyfat$Knee)
+hist(Bodyfat$Knee)
+boxplot(Bodyfat$Knee)
+
+#Analisando os outliers
+Bodyfat_Knee= Bodyfat[order(Bodyfat$Knee),]
+tail(Bodyfat_Knee ,4)
+
+# Carrega pacote
+library(nortest) 
+ 
+# Realiza o teste
+testeShapiro <- shapiro.test(Bodyfat$Knee)
+
+# Exibe teste
+testeShapiro
+
+
+filter(Bodyfat, is.na(Knee))
+
+```
+*Observações Knee(Joelho)*
+
+Observa-se um desvio padrão muito pequeno, mas com ocorrencias de outliers. Leva a pensar se é uma variável importante, ja que sua variável é tão baixa.
+
+A distribuição não é normal e e percebi que não existem valores "incorretos ou inviáveis".
+
+Não encontrei nenhuma particularidade sobre a Joelho em relação as demais partes do corpo
+
+--------------------------------------------------------------------------------------------------------------------------
+*Variável dependente Ankle(Tornozelo):*
+
+Analisando os dados estatisticos.
+
+```{r}
+
+summary(Bodyfat$Ankle)
+sd(Bodyfat$Ankle)
+hist(Bodyfat$Ankle)
+boxplot(Bodyfat$Ankle)
+
+#Analisando os outliers
+Bodyfat_Ankle= Bodyfat[order(Bodyfat$Ankle),]
+tail(Bodyfat_Ankle ,4)
+
+# Carrega pacote
+library(nortest) 
+ 
+# Realiza o teste
+testeShapiro <- shapiro.test(Bodyfat$Ankle)
+
+# Exibe teste
+testeShapiro
+
+
+filter(Bodyfat, is.na(Ankle))
+
+```
+
