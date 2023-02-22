@@ -39,6 +39,8 @@ library(olsrr)
 library(PerformanceAnalytics)
 library(correlation)
 library(dplyr)
+library(Boruta)
+library(nortest)
 ```
 
 ```{r}
@@ -103,7 +105,7 @@ Para a realização desse teste é necessário a instalação do pacote nortest
 
 ```{r}
 # Carrega pacote
-library(nortest) 
+#library(nortest) 
  
 # Realiza o teste
 testeShapiro <- shapiro.test(Bodyfat$Abdomen)
@@ -142,7 +144,7 @@ Bodyfat_hip = Bodyfat[order(Bodyfat$Hip),]
 tail(Bodyfat_hip ,3)
 
 # Carrega pacote
-library(nortest) 
+#library(nortest) 
  
 # Realiza o teste
 testeShapiro <- shapiro.test(Bodyfat$Hip)
@@ -184,7 +186,7 @@ Bodyfat_Thigh = Bodyfat[order(Bodyfat$Thigh),]
 tail(Bodyfat_Thigh ,4)
 
 # Carrega pacote
-library(nortest) 
+#library(nortest) 
  
 # Realiza o teste
 testeShapiro <- shapiro.test(Bodyfat$Thigh)
@@ -222,7 +224,7 @@ Bodyfat_Knee= Bodyfat[order(Bodyfat$Knee),]
 tail(Bodyfat_Knee ,4)
 
 # Carrega pacote
-library(nortest) 
+#library(nortest) 
  
 # Realiza o teste
 testeShapiro <- shapiro.test(Bodyfat$Knee)
@@ -259,7 +261,7 @@ Bodyfat_Ankle= Bodyfat[order(Bodyfat$Ankle),]
 tail(Bodyfat_Ankle ,4)
 
 # Carrega pacote
-library(nortest) 
+#library(nortest) 
  
 # Realiza o teste
 testeShapiro <- shapiro.test(Bodyfat$Ankle)
@@ -269,6 +271,234 @@ testeShapiro
 
 
 filter(Bodyfat, is.na(Ankle))
+
+```
+
+
+Análise da Variável Age
+
+```{r}
+summary(Bodyfat$Age)
+sd(Bodyfat$Age)
+hist(Bodyfat$Age)
+boxplot(Bodyfat$Age)
+plot(Bodyfat$Age, Bodyfat$bodyfat)
+
+#Analisando os outliers
+Bodyfat_Age= Bodyfat[order(Bodyfat$Age),]
+tail(Bodyfat_Age ,4)
+
+ 
+# Realiza o teste
+testeShapiro_Age <- shapiro.test(Bodyfat$Age)
+
+# Exibe teste
+testeShapiro_Age
+
+
+
+
+reg_simples_Age <- lm(bodyfat ~ Age, data=Bodyfat)
+summary(reg_simples_Age)
+
+meus_desenhos <- Bodyfat %>% mutate(chute_media_Age = mean(Bodyfat$bodyfat),chute_modelo_Age = reg_simples_Age$fitted.values)
+
+arte <- ggplot()
+arte <- arte + geom_point(data=meus_desenhos, aes(x=bodyfat, y=bodyfat), color = "black" ) +
+  labs(title = "",
+       x = "Age",
+       y = "real_arte",
+       color = "green")
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_media_Age, y=bodyfat), color = "gray" )
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_modelo_Age, y=bodyfat), color = "blue" )
+arte
+
+```
+Análise da variável Weight
+
+```{r}
+summary(Bodyfat$Weight)
+sd(Bodyfat$Weight)
+hist(Bodyfat$Weight)
+boxplot(Bodyfat$Weight)
+plot(Bodyfat$Weight, Bodyfat$bodyfat)
+
+reg_simples_Weight <- lm(bodyfat ~ Weight, data=Bodyfat)
+summary(reg_simples_Weight)
+
+#Analisando os outliers
+Bodyfat_Weight= Bodyfat[order(Bodyfat$Weight),]
+tail(Bodyfat_Weight ,4)
+
+ 
+# Realiza o teste
+testeShapiro_Weight <- shapiro.test(Bodyfat$Weight)
+
+# Exibe teste
+testeShapiro_Weight
+
+meus_desenhos <- Bodyfat %>% mutate(chute_media_Weight = mean(Bodyfat$bodyfat),chute_modelo_Weight = reg_simples_Weight$fitted.values)
+
+arte <- ggplot()
+arte <- arte + geom_point(data=meus_desenhos, aes(x=bodyfat, y=bodyfat), color = "black" ) +
+  labs(title = "",
+       x = "Weight",
+       y = "real_arte",
+       color = "green")
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_media_Weight, y=bodyfat), color = "gray" )
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_modelo_Weight, y=bodyfat), color = "blue" )
+arte
+
+
+```
+
+Análise da variável Height
+
+```{r}
+
+summary(Bodyfat$Height)
+sd(Bodyfat$Height)
+hist(Bodyfat$Height)
+boxplot(Bodyfat$Height)
+plot(Bodyfat$Height, Bodyfat$bodyfat)
+
+
+reg_simples_Height <- lm(bodyfat ~ Height, data=Bodyfat)
+summary(reg_simples_Height)
+
+#Analisando os outliers
+Bodyfat_Height= Bodyfat[order(Bodyfat$Height),]
+tail(Bodyfat_Height ,4)
+
+ 
+# Realiza o teste
+testeShapiro_Height <- shapiro.test(Bodyfat$Height)
+
+# Exibe teste
+testeShapiro_Height
+
+meus_desenhos <- Bodyfat %>% mutate(chute_media_Height = mean(Bodyfat$bodyfat),chute_modelo_Height = reg_simples_Height$fitted.values)
+
+arte <- ggplot()
+arte <- arte + geom_point(data=meus_desenhos, aes(x=bodyfat, y=bodyfat), color = "black" ) +
+  labs(title = "",
+       x = "Height",
+       y = "real_arte",
+       color = "green")
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_media_Height, y=bodyfat), color = "gray" )
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_modelo_Height, y=bodyfat), color = "blue" )
+arte
+
+```
+Análise da Variável Neck
+
+```{r}
+summary(Bodyfat$Neck)
+sd(Bodyfat$Neck)
+hist(Bodyfat$Neck)
+boxplot(Bodyfat$Neck)
+plot(Bodyfat$Neck, Bodyfat$bodyfat)
+
+reg_simples_Neck <- lm(bodyfat ~ Neck, data=Bodyfat)
+summary(reg_simples_Neck)
+
+#Analisando os outliers
+Bodyfat_Neck= Bodyfat[order(Bodyfat$Neck),]
+tail(Bodyfat_Neck ,4)
+
+ 
+# Realiza o teste
+testeShapiro_Neck<- shapiro.test(Bodyfat$Neck)
+
+# Exibe teste
+testeShapiro_Neck
+
+
+meus_desenhos <- Bodyfat %>% mutate(chute_media_Neck = mean(Bodyfat$bodyfat),chute_modelo_Neck = reg_simples_Neck$fitted.values)
+
+arte <- ggplot()
+arte <- arte + geom_point(data=meus_desenhos, aes(x=bodyfat, y=bodyfat), color = "black" ) +
+  labs(title = "",
+       x = "Neck",
+       y = "real_arte",
+       color = "green")
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_media_Neck, y=bodyfat), color = "gray" )
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_modelo_Neck, y=bodyfat), color = "blue" )
+arte
+
+
+
+
+```
+Análise da variável Chest
+
+```{r}
+
+summary(Bodyfat$Chest)
+sd(Bodyfat$Chest)
+hist(Bodyfat$Chest)
+boxplot(Bodyfat$Chest)
+plot(Bodyfat$Chest, Bodyfat$bodyfat)
+
+reg_simples_Chest <- lm(bodyfat ~ Chest, data=Bodyfat)
+summary(reg_simples_Chest)
+
+#Analisando os outliers
+Bodyfat_Chest= Bodyfat[order(Bodyfat$Chest),]
+tail(Bodyfat_Chest ,4)
+
+ 
+# Realiza o teste
+testeShapiro_Chest<- shapiro.test(Bodyfat$Chest)
+
+# Exibe teste
+testeShapiro_Chest
+
+meus_desenhos <- Bodyfat %>% mutate(chute_media_Chest = mean(Bodyfat$bodyfat),chute_modelo_Chest = reg_simples_Chest$fitted.values)
+
+arte <- ggplot()
+arte <- arte + geom_point(data=meus_desenhos, aes(x=bodyfat, y=bodyfat), color = "black" ) +
+  labs(title = "",
+       x = "Chest",
+       y = "real_arte",
+       color = "green")
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_media_Chest, y=bodyfat), color = "gray" )
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_modelo_Chest, y=bodyfat), color = "blue" )
+arte
+
+
+```
+Teste de Feature Importance usando o Algoritmo Boruta
+
+```{r}
+library(Boruta)
+set.seed(111)
+boruta.bodyfat <- Boruta(bodyfat ~ ., data = Bodyfat, doTrace = 2)
+print(boruta.bodyfat)
+
+plot(boruta.bodyfat, xlab = "", xaxt = "n")
+lz<-lapply(1:ncol(boruta.bodyfat$ImpHistory),function(i)
+  boruta.bodyfat$ImpHistory[is.finite(boruta.bodyfat$ImpHistory[,i]),i])
+names(lz) <- colnames(boruta.bodyfat$ImpHistory)
+Labels <- sort(sapply(lz,median))
+axis(side = 1,las=2,labels = names(Labels),
+     at = 1:ncol(boruta.bodyfat$ImpHistory), cex.axis = 0.7)
+
+
+#### Executando o algoritmo Boruta, observamos que para ele, quase todas as
+#### variáveis são importantes, com exeção do tornozelo. Sem dúvida, a mais 
+#### importante é o abdome, seguido da circunferência do peito.
+
 
 ```
 
