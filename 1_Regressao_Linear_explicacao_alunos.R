@@ -258,7 +258,6 @@ summary(reg_gordura_full)
 chart.Correlation((Bodyfat), histogram = TRUE)
 
 
-
 #DISCUTAM EM GRUPO###########################
 #' o que aconteceu com o modelo?
 #' veja metricas, desempenho
