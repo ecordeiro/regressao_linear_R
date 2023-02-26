@@ -1,28 +1,35 @@
 ---
-title: "Trabalho ASN para criar modelo de Regressão Linear Bodyfat"
-output: Modelo de Regressão Linear
+title: "Trabalho ASN Regressão Linear"
+author: "Emmanuel, Diego e Edgar"
+output: html_document
 ---
+![](https://jedis.asn.rocks/pluginfile.php/1/theme_edumy/headerlogo1/1604959123/ASN_Logo_Site_Vertical%20-%20Copy1.png){ width=5% } 
 
-Estimativa de Gordura corporal e várias medidas de circunferencias para 252 homens.
+## Estimativa de Gordura corporal 
 
-Density determined from underwater weighing
-Percent body fat from Siri's (1956) equation
-Age (years)
-Weight (lbs)
-Height (inches)
-Neck circumference (cm)
-Chest circumference (cm)
-Abdomen 2 circumference (cm)
-Hip circumference (cm)
-Thigh circumference (cm)
-Knee circumference (cm)
-Ankle circumference (cm)
-Biceps (extended) circumference (cm)
-Forearm circumference (cm)
-Wrist circumference (cm)
+Para este trabalho, foi disponibilizada uma base com as medidas corporais de 252 homens.  
 
+### Features:
 
-```{r include=FALSE}
+**Density:** determined from underwater weighing  
+**bodyfat:** Percent body fat from Siri's (1956) equation  
+**Age (years):** Idade em anos  
+**Weight (lbs):** Peso em libras  
+**Height (inches):**  Altura em polegadas  
+**Neck circumference (cm):** Circunferencia do Pescoço  
+**Chest circumference (cm):** Circunferencia do Peito  
+**Abdomen 2 circumference (cm):** Circunferencia do Abdomen  
+**Hip circumference (cm):** Circunferencia do Quadril  
+**Thigh circumference (cm):** Circunferencia da Coxa  
+**Knee circumference (cm):** Circunferencia do Joelho  
+**Ankle circumference (cm):** Circunferencia do Tornozelo  
+**Biceps (extended) circumference (cm):** Circunferencia do Biceps  
+**Forearm circumference (cm):** Circunferencia do antebraço  
+**Wrist circumference (cm):** Circunferencia do Pulso  
+
+### Bibliotecas Utilizadas
+
+```{r Bibliotecas Utilizadas, message=FALSE, warning=FALSE}
 library(readr)
 library(openxlsx) #biblioteca para escrever arquivo em excel
 library(haven)
@@ -41,49 +48,56 @@ library(correlation)
 library(dplyr)
 library(Boruta)
 library(nortest)
+library(knitr)
 ```
 
-```{r}
+```{r include=FALSE}
 path = "D:\\OneDrive\\Pessoal\\ASN.Rocks\\Regressão Linear\\Trabalho\\regressao_linear_R"
 
 setwd(path)
 ```
 
 
-Lê o arquivo do *Bodyfat.csv* e carrega o dataframe.
+Acessando o banco de dados *Bodyfat.csv* e Visualizando os 10 primeiros Registros
 
-
-```{r}
+```{r include=FALSE}
 
 Bodyfat <- read_csv("dados/Bodyfat.csv")
 # tirando uma variavel que nao sera usada (contexto negocio)
-Bodyfat <- Bodyfat %>%
-  select(-Density)
+#Bodyfat <- Bodyfat %>%
+#  select(-Density)
+
 ```
 
-Variável dependente Abdomen:
+```{r}
 
-Analisando os dados estatisticos.
+kable(head(Bodyfat, 10))
 
+```
 
+### Análise Univariada
+
+#### Abdomen:
+
+**Analisando os dados descritivos.**
 ```{r}
 summary(Bodyfat$Abdomen)
 ```
-
+**Desvio Padrão.**
 ```{r}
 sd(Bodyfat$Abdomen)
 ```
+**Histograma**
 ```{r}
 hist(Bodyfat$Abdomen)
 ```
 
+**BoxPlot**
 ```{r}
 boxplot(Bodyfat$Abdomen)
 ```
-Analisa os outliers
-
+**Analisa os outliers**
 ```{r}
-
 Bodyfat_abd = Bodyfat[order(Bodyfat$Abdomen),]
 
 tail(Bodyfat_abd ,3)
