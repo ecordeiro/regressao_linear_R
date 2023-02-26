@@ -1,0 +1,103 @@
+Density: Determinada através da pesagem sub-aquatica
+	- A Distribuição é Normal
+	- Coeficiente de variação: 1.8% muito baixo, o que indica uma baixa variabilidade dos dados.
+	- Existe um valor outlier para baixo: 0.995000 que jogando na fórmula de Cálculo do BodyFat (495/D - 450) vai ocorrer
+	o maior valor de bodyfat: 47,49. É provável que este valor esteja incorreto uma vez que todos os outros valores são menores
+	comparado a outros valores cujo bodyfat é menor. Não está fazendo sentido.
+
+Conclusão, excluir a linha deste outlier
+
+bodyfat: Percentual de gordura do corpo, de acordo com a equação do Siri (1956): 495/Densidade - 450
+	- A Distribuição é Normal
+	- Coeficiente de variação: 43.61%, demonstra uma variabilidade alta (acima de 25%)
+	- Existe um valor zerado, o que não faz sentido uma vez que todos possuem algum nível de gordura corporal.
+	- Existe um outlier, que ja será excluído na análise anterior
+
+Conclusão, excluir a linah cujo o bodyfat seja igual a 0.
+
+Age: Idade
+	- A Distribuição não é normal
+	- O Coeficiente de variação é alto (28,02%), indicando uma alta variabilidade dos dados
+	- não existem outliers e nem dados inválidos
+	- o mais jovem possuem 22 anos e o mais velho possui 81 anos
+	- a maior parte dos dados encontra-se entre 35 e 54 anos
+
+Conclusão, sem nenhuma alteração
+
+Weight: Peso
+	- A Distribuição não é Normal
+	- Coeficiente de variação: 16.39%, ou seja, uma baixa variabilidade dos dados
+	- Exsitem dois outlier`s, um com 165,1 kg e outro com 119.4
+
+Conclusão, essa linha com o peso de 165.1 kg, possui também um IMC de 50.6. Esse IMC acima de 50 sera uma exclusão por
+ser um valor muito alto em relação ao ultimo nível da tabela de IMCS que é 40.
+
+A outra linha outlier, não será excluída neste critério
+
+Height: Altura
+	- A Distribuição não é Normal
+	- Coeficiente de variação: 5.58%, ou seja, baixa variabilidade
+	- Existe uma linha cuja pessoa mede 70 centimentros, o que é muito abaixo dos padrões.
+
+Conclusão: Essa linha deverá ser excluída, uma vez que o IMC também está 171.3, o que me parece ser algo impossível
+
+
+Neck: Pescoço
+    - A Distribuição não é Normal
+    - Coeficiente de variação: 6.39%, ou seja, baixa variabilidade
+	- Existem 3 outliers, dois com valores menores e 1 com valor maior. O de maior valor, será excluído quando excluírmos os IMCS maiores que 50.
+	Os de menores valores, aparentemente estão dentro dos valore possíveis e não precisam ser excluídos.
+
+
+Chest: Peito
+	- A Distribuição não é Normal
+	- Coeficiente de variação: 8.34%, ou seja, baixa variabilidade
+	- Existem dois outliers. O de maior valor, ja será excluido pelo IMC. O outro, não há motivo aparente para a exclusão
+
+
+Abdomen: Abdomen
+	- A Distribuição não é Normal
+	- Coeficiente de variação: 11.63%
+	- Existem três outliers, mas o de maior valor e o de terceiro maior valor, ja estarão excluidos por outros critérios. O valor do meio, será mantido.
+
+Hip: Quadril
+	- A Distribuição não é Normal
+	- Coeficiente de variação: 7.16%, ou seja, a variabilidade é baixa
+	- Existem três outliers onde o de maior valor ja será excluido pelo critério do IMC>50
+
+Thigh: Coxa
+	- A Distribuição não é Normal
+	- Coeficiente de variação: 8.82%, ou seja, a variabilidade é baixa
+	- Existem alguns outliers onde o de maior valor ja será excluido pelo critério do IMC>50
+
+Knee: Joelho
+	- A Distribuição não é Normal
+	- Coeficiente de variação: 6.24%, ou seja, a variabilidade é baixa
+	- Existem três outliers onde o de maior valor ja será excluido pelo critério do IMC>50
+
+Ankle: Tornozelo
+	- A Distribuição não é Normal
+	- Coeficiente de variação: 7.32%, ou seja, a variabilidade é baixa
+	- Existem três outliers onde o de terceiro de maior valor ja será excluido pelo critério do IMC>50
+
+Biceps:Biceps
+	- A Distribuição não é Normal
+	- Coeficiente de variação: 9.34%, ou seja, a variabilidade é baixa
+	- Existe somente um outlier que ja será excluido pelo critério do IMC>50
+
+Forearm: Antebraço
+	- A Distribuição não é Normal
+	- Coeficiente de variação: 7.04%
+	- Exsitem 5 outliers, 4 abaixo e 1 acima. Nenhum será excluído.
+
+Wrist: Pulso
+	- A Distribuição é Normal
+	- Coeficiente de variação: 5.11%, variabilidade muito baixa
+	- Existem outliers acima e abaixo. Nenhum será excluído
+
+
+IMC: Indice de massa corporal
+	- A Distribuição não é Normal
+	- Coeficiente de variação: 36.76%, altava variabilidade
+	- Existem outliers e todos que forem acima de 50 serão excluidos
+

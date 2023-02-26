@@ -7,7 +7,13 @@ output: html_document
 
 ## Estimativa de Gordura corporal 
 
-Para este trabalho, foi disponibilizada uma base com as medidas corporais de 252 homens.  
+A partir de um estudo realizado com 252 indivíduos, coletaram-se diversas amostras com as medidas corporais.
+A variável Y (Preditora) recebe o nome de "BodyFat" que corresponde ao total de gordura acumulada do indivíduo.
+Nosso objetivo com este estudo é inferir quais medidas coletadas posteriormente serão suficientes para prever o volume total de gordura do indivíduo para otimizar o trabalho.
+
+#Origem da Base de Dados - http://staff.pubhealth.ku.dk/~tag/Teaching/share/data/Bodyfat.html
+
+
 
 ### Features:
 
@@ -58,24 +64,267 @@ setwd(path)
 ```
 
 
-Acessando o banco de dados *Bodyfat.csv* e Visualizando os 10 primeiros Registros
+Banco de dados **Bodyfat.csv**  
+(10 primeiros Registros)
 
 ```{r include=FALSE}
-
 Bodyfat <- read_csv("dados/Bodyfat.csv")
-# tirando uma variavel que nao sera usada (contexto negocio)
-#Bodyfat <- Bodyfat %>%
-#  select(-Density)
 
 ```
 
-```{r}
+```{r echo=FALSE}
 
 kable(head(Bodyfat, 10))
 
 ```
 
 ### Análise Univariada
+
+#### Variável **Density**: Target
+
+Os dados disponíveis na variável Density, é utilizado para o calculo da variável bodyfat. Devido a isso, resolvemos entender qual seria a correlação entre elas.
+
+```{r}
+cor(Bodyfat$Density,Bodyfat$bodyfat)
+```
+Como a correlação entre elas é inversamente alta. E nosso target(y) é bodyfat, iremos eliminar a variável Density do modelo.
+
+```{r}
+Bodyfat <- Bodyfat %>%
+  select(-Density)
+
+Bodyfat
+```
+
+#### Variável **Bodyfat**: Target
+
+Identificamos que existem dois registros na target que consideramos inválidos, um com bodyfat igual a 0 e outro com o bodyfat igual a 47.50.
+
+Optamos pela exclusão.
+
+```{r}
+summary(Bodyfat$bodyfat)
+sd(Bodyfat$bodyfat)
+hist(Bodyfat$bodyfat)
+boxplot(Bodyfat$bodyfat)
+
+#Analisando os outliers
+Bodyfat_bodyfat= Bodyfat[order(Bodyfat$bodyfat),]
+#tail(Bodyfat_bodyfat ,4)
+
+Bodyfat <- filter(Bodyfat,bodyfat<47.50 & bodyfat>0)
+
+```
+#### Variável **Age**: Idade
+
+```{r}
+summary(Bodyfat$Age)
+sd(Bodyfat$Age)
+hist(Bodyfat$Age)
+boxplot(Bodyfat$Age)
+plot(Bodyfat$Age, Bodyfat$bodyfat)
+
+#Analisando os outliers
+Bodyfat_Age= Bodyfat[order(Bodyfat$Age),]
+tail(Bodyfat_Age ,4)
+
+ 
+# Realiza o teste
+testeShapiro_Age <- shapiro.test(Bodyfat$Age)
+
+# Exibe teste
+testeShapiro_Age
+
+reg_simples_Age <- lm(bodyfat ~ Age, data=Bodyfat)
+summary(reg_simples_Age)
+
+meus_desenhos <- Bodyfat %>% mutate(chute_media_Age = mean(Bodyfat$bodyfat),chute_modelo_Age = reg_simples_Age$fitted.values)
+
+arte <- ggplot()
+arte <- arte + geom_point(data=meus_desenhos, aes(x=bodyfat, y=bodyfat), color = "black" ) +
+  labs(title = "",
+       x = "Age",
+       y = "real_arte",
+       color = "green")
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_media_Age, y=bodyfat), color = "gray" )
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_modelo_Age, y=bodyfat), color = "blue" )
+arte
+
+```
+Análise da variável Weight (Peso)
+
+Optamos por fazer a conversão para Kilos
+
+```{r}
+Bodyfat$Weight = Bodyfat$Weight/2.205
+
+summary(Bodyfat$Weight)
+sd(Bodyfat$Weight)
+hist(Bodyfat$Weight)
+boxplot(Bodyfat$Weight)
+plot(Bodyfat$Weight, Bodyfat$bodyfat)
+
+reg_simples_Weight <- lm(bodyfat ~ Weight, data=Bodyfat)
+summary(reg_simples_Weight)
+
+#Analisando os outliers
+Bodyfat_Weight= Bodyfat[order(Bodyfat$Weight),]
+tail(Bodyfat_Weight ,4)
+
+ 
+# Realiza o teste
+testeShapiro_Weight <- shapiro.test(Bodyfat$Weight)
+
+# Exibe teste
+testeShapiro_Weight
+
+meus_desenhos <- Bodyfat %>% mutate(chute_media_Weight = mean(Bodyfat$bodyfat),chute_modelo_Weight = reg_simples_Weight$fitted.values)
+
+arte <- ggplot()
+arte <- arte + geom_point(data=meus_desenhos, aes(x=bodyfat, y=bodyfat), color = "black" ) +
+  labs(title = "",
+       x = "Weight",
+       y = "real_arte",
+       color = "green")
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_media_Weight, y=bodyfat), color = "gray" )
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_modelo_Weight, y=bodyfat), color = "blue" )
+arte
+
+
+```
+
+Análise da variável Height
+
+Optamos por converter para metros
+
+```{r}
+
+Bodyfat$Height = Bodyfat$Height*2.5 # Convert to cm
+Bodyfat$Height = Bodyfat$Height/100 # Convert to metros
+
+summary(Bodyfat$Height)
+sd(Bodyfat$Height)
+hist(Bodyfat$Height)
+boxplot(Bodyfat$Height)
+plot(Bodyfat$Height, Bodyfat$bodyfat)
+
+
+reg_simples_Height <- lm(bodyfat ~ Height, data=Bodyfat)
+summary(reg_simples_Height)
+
+#Analisando os outliers
+Bodyfat_Height= Bodyfat[order(Bodyfat$Height),]
+tail(Bodyfat_Height ,4)
+
+ 
+# Realiza o teste
+testeShapiro_Height <- shapiro.test(Bodyfat$Height)
+
+# Exibe teste
+testeShapiro_Height
+
+meus_desenhos <- Bodyfat %>% mutate(chute_media_Height = mean(Bodyfat$bodyfat),chute_modelo_Height = reg_simples_Height$fitted.values)
+
+arte <- ggplot()
+arte <- arte + geom_point(data=meus_desenhos, aes(x=bodyfat, y=bodyfat), color = "black" ) +
+  labs(title = "",
+       x = "Height",
+       y = "real_arte",
+       color = "green")
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_media_Height, y=bodyfat), color = "gray" )
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_modelo_Height, y=bodyfat), color = "blue" )
+arte
+
+```
+Análise da Variável Neck
+
+```{r}
+summary(Bodyfat$Neck)
+sd(Bodyfat$Neck)
+hist(Bodyfat$Neck)
+boxplot(Bodyfat$Neck)
+plot(Bodyfat$Neck, Bodyfat$bodyfat)
+
+reg_simples_Neck <- lm(bodyfat ~ Neck, data=Bodyfat)
+summary(reg_simples_Neck)
+
+#Analisando os outliers
+Bodyfat_Neck= Bodyfat[order(Bodyfat$Neck),]
+tail(Bodyfat_Neck ,4)
+
+ 
+# Realiza o teste
+testeShapiro_Neck<- shapiro.test(Bodyfat$Neck)
+
+# Exibe teste
+testeShapiro_Neck
+
+
+meus_desenhos <- Bodyfat %>% mutate(chute_media_Neck = mean(Bodyfat$bodyfat),chute_modelo_Neck = reg_simples_Neck$fitted.values)
+
+arte <- ggplot()
+arte <- arte + geom_point(data=meus_desenhos, aes(x=bodyfat, y=bodyfat), color = "black" ) +
+  labs(title = "",
+       x = "Neck",
+       y = "real_arte",
+       color = "green")
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_media_Neck, y=bodyfat), color = "gray" )
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_modelo_Neck, y=bodyfat), color = "blue" )
+arte
+
+
+
+
+```
+Análise da variável Chest
+
+```{r}
+
+summary(Bodyfat$Chest)
+sd(Bodyfat$Chest)
+hist(Bodyfat$Chest)
+boxplot(Bodyfat$Chest)
+plot(Bodyfat$Chest, Bodyfat$bodyfat)
+
+reg_simples_Chest <- lm(bodyfat ~ Chest, data=Bodyfat)
+summary(reg_simples_Chest)
+
+#Analisando os outliers
+Bodyfat_Chest= Bodyfat[order(Bodyfat$Chest),]
+tail(Bodyfat_Chest ,4)
+
+ 
+# Realiza o teste
+testeShapiro_Chest<- shapiro.test(Bodyfat$Chest)
+
+# Exibe teste
+testeShapiro_Chest
+
+meus_desenhos <- Bodyfat %>% mutate(chute_media_Chest = mean(Bodyfat$bodyfat),chute_modelo_Chest = reg_simples_Chest$fitted.values)
+
+arte <- ggplot()
+arte <- arte + geom_point(data=meus_desenhos, aes(x=bodyfat, y=bodyfat), color = "black" ) +
+  labs(title = "",
+       x = "Chest",
+       y = "real_arte",
+       color = "green")
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_media_Chest, y=bodyfat), color = "gray" )
+arte
+arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_modelo_Chest, y=bodyfat), color = "blue" )
+arte
+
+
+```
+
 
 #### Abdomen:
 
@@ -288,213 +537,98 @@ filter(Bodyfat, is.na(Ankle))
 
 ```
 
+**Biceps(Biceps):**
 
-Análise da Variável Age
-
-```{r}
-summary(Bodyfat$Age)
-sd(Bodyfat$Age)
-hist(Bodyfat$Age)
-boxplot(Bodyfat$Age)
-plot(Bodyfat$Age, Bodyfat$bodyfat)
-
-#Analisando os outliers
-Bodyfat_Age= Bodyfat[order(Bodyfat$Age),]
-tail(Bodyfat_Age ,4)
-
- 
-# Realiza o teste
-testeShapiro_Age <- shapiro.test(Bodyfat$Age)
-
-# Exibe teste
-testeShapiro_Age
-
-
-
-
-reg_simples_Age <- lm(bodyfat ~ Age, data=Bodyfat)
-summary(reg_simples_Age)
-
-meus_desenhos <- Bodyfat %>% mutate(chute_media_Age = mean(Bodyfat$bodyfat),chute_modelo_Age = reg_simples_Age$fitted.values)
-
-arte <- ggplot()
-arte <- arte + geom_point(data=meus_desenhos, aes(x=bodyfat, y=bodyfat), color = "black" ) +
-  labs(title = "",
-       x = "Age",
-       y = "real_arte",
-       color = "green")
-arte
-arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_media_Age, y=bodyfat), color = "gray" )
-arte
-arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_modelo_Age, y=bodyfat), color = "blue" )
-arte
-
-```
-Análise da variável Weight
-
-```{r}
-summary(Bodyfat$Weight)
-sd(Bodyfat$Weight)
-hist(Bodyfat$Weight)
-boxplot(Bodyfat$Weight)
-plot(Bodyfat$Weight, Bodyfat$bodyfat)
-
-reg_simples_Weight <- lm(bodyfat ~ Weight, data=Bodyfat)
-summary(reg_simples_Weight)
-
-#Analisando os outliers
-Bodyfat_Weight= Bodyfat[order(Bodyfat$Weight),]
-tail(Bodyfat_Weight ,4)
-
- 
-# Realiza o teste
-testeShapiro_Weight <- shapiro.test(Bodyfat$Weight)
-
-# Exibe teste
-testeShapiro_Weight
-
-meus_desenhos <- Bodyfat %>% mutate(chute_media_Weight = mean(Bodyfat$bodyfat),chute_modelo_Weight = reg_simples_Weight$fitted.values)
-
-arte <- ggplot()
-arte <- arte + geom_point(data=meus_desenhos, aes(x=bodyfat, y=bodyfat), color = "black" ) +
-  labs(title = "",
-       x = "Weight",
-       y = "real_arte",
-       color = "green")
-arte
-arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_media_Weight, y=bodyfat), color = "gray" )
-arte
-arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_modelo_Weight, y=bodyfat), color = "blue" )
-arte
-
-
-```
-
-Análise da variável Height
+Analisando os dados estatisticos.
 
 ```{r}
 
-summary(Bodyfat$Height)
-sd(Bodyfat$Height)
-hist(Bodyfat$Height)
-boxplot(Bodyfat$Height)
-plot(Bodyfat$Height, Bodyfat$bodyfat)
-
-
-reg_simples_Height <- lm(bodyfat ~ Height, data=Bodyfat)
-summary(reg_simples_Height)
+summary(Bodyfat$Biceps)
+sd(Bodyfat$Biceps)
+hist(Bodyfat$Biceps)
+boxplot(Bodyfat$Biceps)
 
 #Analisando os outliers
-Bodyfat_Height= Bodyfat[order(Bodyfat$Height),]
-tail(Bodyfat_Height ,4)
+Bodyfat_Biceps= Bodyfat[order(Bodyfat$Biceps),]
+tail(Bodyfat_Biceps ,4)
 
+# Carrega pacote
+#library(nortest) 
  
 # Realiza o teste
-testeShapiro_Height <- shapiro.test(Bodyfat$Height)
+testeShapiro <- shapiro.test(Bodyfat$Biceps)
 
 # Exibe teste
-testeShapiro_Height
+testeShapiro
 
-meus_desenhos <- Bodyfat %>% mutate(chute_media_Height = mean(Bodyfat$bodyfat),chute_modelo_Height = reg_simples_Height$fitted.values)
 
-arte <- ggplot()
-arte <- arte + geom_point(data=meus_desenhos, aes(x=bodyfat, y=bodyfat), color = "black" ) +
-  labs(title = "",
-       x = "Height",
-       y = "real_arte",
-       color = "green")
-arte
-arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_media_Height, y=bodyfat), color = "gray" )
-arte
-arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_modelo_Height, y=bodyfat), color = "blue" )
-arte
+filter(Bodyfat, is.na(Biceps))
 
 ```
-Análise da Variável Neck
 
-```{r}
-summary(Bodyfat$Neck)
-sd(Bodyfat$Neck)
-hist(Bodyfat$Neck)
-boxplot(Bodyfat$Neck)
-plot(Bodyfat$Neck, Bodyfat$bodyfat)
+**Forearm(AnteBraço):**
 
-reg_simples_Neck <- lm(bodyfat ~ Neck, data=Bodyfat)
-summary(reg_simples_Neck)
-
-#Analisando os outliers
-Bodyfat_Neck= Bodyfat[order(Bodyfat$Neck),]
-tail(Bodyfat_Neck ,4)
-
- 
-# Realiza o teste
-testeShapiro_Neck<- shapiro.test(Bodyfat$Neck)
-
-# Exibe teste
-testeShapiro_Neck
-
-
-meus_desenhos <- Bodyfat %>% mutate(chute_media_Neck = mean(Bodyfat$bodyfat),chute_modelo_Neck = reg_simples_Neck$fitted.values)
-
-arte <- ggplot()
-arte <- arte + geom_point(data=meus_desenhos, aes(x=bodyfat, y=bodyfat), color = "black" ) +
-  labs(title = "",
-       x = "Neck",
-       y = "real_arte",
-       color = "green")
-arte
-arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_media_Neck, y=bodyfat), color = "gray" )
-arte
-arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_modelo_Neck, y=bodyfat), color = "blue" )
-arte
-
-
-
-
-```
-Análise da variável Chest
+Analisando os dados estatisticos.
 
 ```{r}
 
-summary(Bodyfat$Chest)
-sd(Bodyfat$Chest)
-hist(Bodyfat$Chest)
-boxplot(Bodyfat$Chest)
-plot(Bodyfat$Chest, Bodyfat$bodyfat)
-
-reg_simples_Chest <- lm(bodyfat ~ Chest, data=Bodyfat)
-summary(reg_simples_Chest)
+summary(Bodyfat$Forearm)
+sd(Bodyfat$Forearm)
+hist(Bodyfat$Forearm)
+boxplot(Bodyfat$Forearm)
 
 #Analisando os outliers
-Bodyfat_Chest= Bodyfat[order(Bodyfat$Chest),]
-tail(Bodyfat_Chest ,4)
+Bodyfat_Forearm= Bodyfat[order(Bodyfat$Forearm),]
+tail(Bodyfat_Forearm ,4)
 
+# Carrega pacote
+#library(nortest) 
  
 # Realiza o teste
-testeShapiro_Chest<- shapiro.test(Bodyfat$Chest)
+testeShapiro <- shapiro.test(Bodyfat$Forearm)
 
 # Exibe teste
-testeShapiro_Chest
+testeShapiro
 
-meus_desenhos <- Bodyfat %>% mutate(chute_media_Chest = mean(Bodyfat$bodyfat),chute_modelo_Chest = reg_simples_Chest$fitted.values)
 
-arte <- ggplot()
-arte <- arte + geom_point(data=meus_desenhos, aes(x=bodyfat, y=bodyfat), color = "black" ) +
-  labs(title = "",
-       x = "Chest",
-       y = "real_arte",
-       color = "green")
-arte
-arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_media_Chest, y=bodyfat), color = "gray" )
-arte
-arte <- arte + geom_point(data=meus_desenhos, aes(x=chute_modelo_Chest, y=bodyfat), color = "blue" )
-arte
-
+filter(Bodyfat, is.na(Forearm))
 
 ```
+
+**Wrist(Pulso):**
+
+Analisando os dados estatisticos.
+
+```{r}
+
+summary(Bodyfat$Wrist)
+sd(Bodyfat$Wrist)
+hist(Bodyfat$Wrist)
+boxplot(Bodyfat$Wrist)
+
+#Analisando os outliers
+Bodyfat_Wrist= Bodyfat[order(Bodyfat$Wrist),]
+tail(Bodyfat_Wrist ,4)
+
+# Carrega pacote
+#library(nortest) 
+ 
+# Realiza o teste
+testeShapiro <- shapiro.test(Bodyfat$Wrist)
+
+# Exibe teste
+testeShapiro
+
+
+filter(Bodyfat, is.na(Wrist))
+
+```
+
+### Análise bivariada
+
 Teste de Feature Importance usando o Algoritmo Boruta
 
-```{r}
+```{r echo=FALSE}
 library(Boruta)
 set.seed(111)
 boruta.bodyfat <- Boruta(bodyfat ~ ., data = Bodyfat, doTrace = 2)
@@ -516,108 +650,156 @@ axis(side = 1,las=2,labels = names(Labels),
 
 ```
 
-Density: Determinada através da pesagem sub-aquatica
-	- A Distribuição é Normal
-	- Coeficiente de variação: 1.8% muito baixo, o que indica uma baixa variabilidade dos dados.
-	- Existe um valor outlier para baixo: 0.995000 que jogando na fórmula de Cálculo do BodyFat (495/D - 450) vai ocorrer
-	o maior valor de bodyfat: 47,49. É provável que este valor esteja incorreto uma vez que todos os outros valores são menores 
-	comparado a outros valores cujo bodyfat é menor. Não está fazendo sentido.
-	
-Conclusão, excluir a linha deste outlier
+#### Correlação
 
-bodyfat: Percentual de gordura do corpo, de acordo com a equação do Siri (1956): 495/Densidade - 450
-	- A Distribuição é Normal
-	- Coeficiente de variação: 43.61%, demonstra uma variabilidade alta (acima de 25%)
-	- Existe um valor zerado, o que não faz sentido uma vez que todos possuem algum nível de gordura corporal.
-	- Existe um outlier, que ja será excluído na análise anterior
-	
-Conclusão, excluir a linah cujo o bodyfat seja igual a 0.
+```{r}
 
-Age: Idade
-	- A Distribuição não é normal
-	- O Coeficiente de variação é alto (28,02%), indicando uma alta variabilidade dos dados
-	- não existem outliers e nem dados inválidos
-	- o mais jovem possuem 22 anos e o mais velho possui 81 anos
-	- a maior parte dos dados encontra-se entre 35 e 54 anos
-	
-Conclusão, sem nenhuma alteração
+chart.Correlation((Bodyfat), histogram = TRUE)
 
-Weight: Peso
-	- A Distribuição não é Normal
-	- Coeficiente de variação: 16.39%, ou seja, uma baixa variabilidade dos dados
-	- Exsitem dois outlier`s, um com 165,1 kg e outro com 119.4
+```
 
-Conclusão, essa linha com o peso de 165.1 kg, possui também um IMC de 50.6. Esse IMC acima de 50 sera uma exclusão por 
-ser um valor muito alto em relação ao ultimo nível da tabela de IMCS que é 40.
+Considerando a correlação maior que 0.7 entre as variáveis, irei excluir as seguinte variáveis:
+'IMC', 'Chest', 'Hip', 'Weight', 'Thigh', 'Knee' e 'Neck'
 
-A outra linha outlier, não será excluída neste critério
+```{r}
+Bodyfat <- Bodyfat %>%
+  select(-Chest,-Hip,-Weight,-Thigh,-Knee,-Neck)
 
-Height: Altura
-	- A Distribuição não é Normal
-	- Coeficiente de variação: 5.58%, ou seja, baixa variabilidade
-	- Existe uma linha cuja pessoa mede 70 centimentros, o que é muito abaixo dos padrões.
-	
-Conclusão: Essa linha deverá ser excluída, uma vez que o IMC também está 171.3, o que me parece ser algo impossível
+Bodyfat
+```
+
+###3 - Modelo, escolhendo o melhor modelo.
+
+```{r}
+reg_gordura_full <- lm(bodyfat ~.,data=Bodyfat)
+summary(reg_gordura_full)
+```
+Analisando o teste F, percebemos que existem variáveis significativas no conjunto de variáveis, mas no teste t, somente 4 estavam estatisticamente diferentes de 0.
+
+#### Executar seleção de variáveis
+ 
+regressao por forward com a regra de AIC
+para o forward precisa primeiro ter o modelo sem nenhuma variavel
+ou seja, apenas o modelo media (b0)
+
+```{r}
+reg_gordura_nula <- lm(bodyfat ~ 1, data=Bodyfat)
+summary(reg_gordura_nula)
+
+# com ele podemos pedir o step saindo dele, ate aquele modelo com todas as vars
+forw <- step(reg_gordura_nula, scope=list(lower=reg_gordura_nula, upper=reg_gordura_full), direction = "forward")
+summary(forw)
+```
 
 
-Neck: Pescoço
-    - A Distribuição não é Normal
-    - Coeficiente de variação: 6.39%, ou seja, baixa variabilidade
-	- Existem 3 outliers, dois com valores menores e 1 com valor maior. O de maior valor, será excluído quando excluírmos os IMCS maiores que 50.
-	Os de menores valores, aparentemente estão dentro dos valore possíveis e não precisam ser excluídos.
-	
+regressao por backward com a regra de AIC
+```{r}
+backw <-  step(reg_gordura_full, direction = "backward")
+summary(backw)
+```
 
-Chest: Peito
-	- A Distribuição não é Normal
-	- Coeficiente de variação: 8.34%, ou seja, baixa variabilidade
-	- Existem dois outliers. O de maior valor, ja será excluido pelo IMC. O outro, não há motivo aparente para a exclusão
-	
-	
-Abdomen: Abdomen
-	- A Distribuição não é Normal
-	- Coeficiente de variação: 11.63%
-	- Existem três outliers, mas o de maior valor e o de terceiro maior valor, ja estarão excluidos por outros critérios. O valor do meio, será mantido.
 
-Hip: Quadril
-	- A Distribuição não é Normal
-	- Coeficiente de variação: 7.16%, ou seja, a variabilidade é baixa
-	- Existem três outliers onde o de maior valor ja será excluido pelo critério do IMC>50
-	
-Thigh: Coxa
-	- A Distribuição não é Normal
-	- Coeficiente de variação: 8.82%, ou seja, a variabilidade é baixa
-	- Existem alguns outliers onde o de maior valor ja será excluido pelo critério do IMC>50
-	
-Knee: Joelho
-	- A Distribuição não é Normal
-	- Coeficiente de variação: 6.24%, ou seja, a variabilidade é baixa
-	- Existem três outliers onde o de maior valor ja será excluido pelo critério do IMC>50
-	
-Ankle: Tornozelo
-	- A Distribuição não é Normal
-	- Coeficiente de variação: 7.32%, ou seja, a variabilidade é baixa
-	- Existem três outliers onde o de terceiro de maior valor ja será excluido pelo critério do IMC>50
-	
-Biceps:Biceps
-	- A Distribuição não é Normal
-	- Coeficiente de variação: 9.34%, ou seja, a variabilidade é baixa
-	- Existe somente um outlier que ja será excluido pelo critério do IMC>50
-	
-Forearm: Antebraço
-	- A Distribuição não é Normal
-	- Coeficiente de variação: 7.04%
-	- Exsitem 5 outliers, 4 abaixo e 1 acima. Nenhum será excluído.
-	
-Wrist: Pulso
-	- A Distribuição é Normal
-	- Coeficiente de variação: 5.11%, variabilidade muito baixa
-	- Existem outliers acima e abaixo. Nenhum será excluído
-	
+regressao por stepwise com a regra de AIC
+```{r}
+stepw <- step(reg_gordura_full, direction = "both")
+summary(stepw)
+```
 
-IMC: Indice de massa corporal
-	- A Distribuição não é Normal
-	- Coeficiente de variação: 36.76%, altava variabilidade
-	- Existem outliers e todos que forem acima de 50 serão excluidos
 
-	
+Deixa somente as variáveis abaixo:
+Age + Height + Abdomen + Forearm + Wrist
+
+
+```{r}
+Bodyfat <- Bodyfat %>%
+  select(-Ankle,-Biceps)
+
+Bodyfat
+```
+
+8. Análise de Resíduo###############################
+8a. Plotando o gráfico de Residuo x Ajustado########
+ajustado X resíduo
+
+```{r}
+plot(fitted(stepw),residuals(stepw),xlab="ValoresAjustados",ylab="Resíduos")
+abline(h=0)
+# qqplot
+qqnorm(residuals(stepw), ylab="Resíduos")
+qqline(residuals(stepw))
+
+```
+
+
+#8b. Fazendo Teste de normalidade de Shapiro############
+# teste de normalidade
+# h0: os dados sao normais
+# h1: os dados nao sao normais
+
+```{r}
+mean(stepw$residuals)
+```
+
+
+```{r}
+shapiro.test(stepw$residuals)
+```
+
+# visualizando o histograma
+```{r}
+hist(stepw$residuals)
+```
+```{r}
+# fazendo o histograma de uma forma mais bonita
+Bodyfat %>%
+  mutate(residuos = stepw$residuals) %>%
+  ggplot(aes(x = residuos)) +
+  geom_histogram(color = "white",
+                 fill = "#440154FF",
+                 bins = 30,
+                 alpha = 0.6) +
+  labs(x = "Resíduos",
+       y = "Frequência") +
+  theme_bw()
+
+# adicionando uma curva da normal por cima
+Bodyfat %>%
+  mutate(residuos = stepw$residuals) %>%
+  ggplot(aes(x = residuos)) +
+  geom_histogram(aes(y = ..density..),
+                 color = "white",
+                 fill = "#440154FF",
+                 bins = 30,
+                 alpha = 0.6) +
+  stat_function(fun = dnorm,
+                args = list(mean = mean(stepw$residuals),
+                            sd = sd(stepw$residuals)),
+                size = 2, color = "grey30") +
+  scale_color_manual(values = "grey50") +
+  labs(x = "Resíduos",
+       y = "Frequência") +
+  theme_bw()
+
+```
+
+
+
+8c. Fazendo o Teste de homogeneidade de variância############
+teste de homogeneidade de variancia Breusch-Pagan test
+ h0: as variâncias dos erros sao iguais (homoscedasticidade)
+ h1: as variâncias dos erros nao sao iguais (heteroscedasticidade)
+```{r}
+bptest(stepw) #library lmtest
+```
+VIF
+```{r}
+# verificando VIF
+ols_vif_tol(stepw)
+```
+
+### Analisar se o modelo ficou bom, identificando as métricas de erro
+
+```{r}
+#rmse(tentativas, truth = bodyfat, estimate = mean(Bodyfat$bodyfat))
+```
 
