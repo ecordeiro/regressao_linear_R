@@ -1437,7 +1437,7 @@ testeShapiro</code></pre>
 <pre><code>##  9. run of importance source...</code></pre>
 <pre><code>##  10. run of importance source...</code></pre>
 <pre><code>##  11. run of importance source...</code></pre>
-<pre><code>## After 11 iterations, +1.2 secs:</code></pre>
+<pre><code>## After 11 iterations, +5.2 secs:</code></pre>
 <pre><code>##  confirmed 12 attributes: Abdomen, Age, Biceps, Chest, Forearm and 7 more;</code></pre>
 <pre><code>##  still have 1 attribute left.</code></pre>
 <pre><code>##  12. run of importance source...</code></pre>
@@ -1470,10 +1470,10 @@ testeShapiro</code></pre>
 <pre><code>##  39. run of importance source...</code></pre>
 <pre><code>##  40. run of importance source...</code></pre>
 <pre><code>##  41. run of importance source...</code></pre>
-<pre><code>## After 41 iterations, +2.7 secs:</code></pre>
+<pre><code>## After 41 iterations, +12 secs:</code></pre>
 <pre><code>##  confirmed 1 attribute: Ankle;</code></pre>
 <pre><code>##  no more attributes left.</code></pre>
-<pre><code>## Boruta performed 41 iterations in 2.704813 secs.
+<pre><code>## Boruta performed 41 iterations in 11.91856 secs.
 ##  13 attributes confirmed important: Abdomen, Age, Ankle, Biceps, Chest
 ## and 8 more;
 ##  No attributes deemed unimportant.</code></pre>
@@ -2054,11 +2054,48 @@ ols_vif_tol(stepw)</code></pre>
 ## 3   Abdomen 0.5563129 1.797549
 ## 4   Forearm 0.5741634 1.741665
 ## 5     Wrist 0.4429118 2.257786</code></pre>
-<div id="analisar-se-o-modelo-ficou-bom-identificando-as-métricas-de-erro" class="section level3">
-<h3>Analisar se o modelo ficou bom, identificando as métricas de
-erro</h3>
-<pre class="r"><code>#rmse(tentativas, truth = bodyfat, estimate = mean(Bodyfat$bodyfat))</code></pre>
-</div>
+<p>Analizando o Modelo</p>
+<pre class="r"><code>bodyfat_sw_model &lt;- lm(bodyfat ~., data=Bodyfat)
+summary(bodyfat_sw_model)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = bodyfat ~ ., data = Bodyfat)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -14.7252  -2.9679  -0.2334   3.4249  10.0531 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) -3.59632    6.87803  -0.523 0.601538    
+## Age          0.09027    0.02453   3.681 0.000286 ***
+## Height      -6.76730    3.35412  -2.018 0.044727 *  
+## Abdomen      0.69728    0.03537  19.713  &lt; 2e-16 ***
+## Forearm      0.38478    0.18275   2.105 0.036271 *  
+## Wrist       -2.46886    0.44980  -5.489 1.01e-07 ***
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 4.397 on 244 degrees of freedom
+## Multiple R-squared:  0.7125, Adjusted R-squared:  0.7066 
+## F-statistic:   121 on 5 and 244 DF,  p-value: &lt; 2.2e-16</code></pre>
+<pre class="r"><code>predict_sw&lt;- predict(bodyfat_sw_model, newdata = Bodyfat)
+
+rmse(Bodyfat, truth = bodyfat, estimate = predict_sw)</code></pre>
+<pre><code>## # A tibble: 1 × 3
+##   .metric .estimator .estimate
+##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+## 1 rmse    standard        4.34</code></pre>
+<p>Verificando o RMSE</p>
+<pre class="r"><code>rmse_na_mao&lt;-sqrt(mean(bodyfat_sw_model$residuals^2))
+rmse_na_mao</code></pre>
+<pre><code>## [1] 4.343739</code></pre>
+<p>MAE</p>
+<pre class="r"><code>mae(Bodyfat, truth = bodyfat, estimate = predict_sw)</code></pre>
+<pre><code>## # A tibble: 1 × 3
+##   .metric .estimator .estimate
+##   &lt;chr&gt;   &lt;chr&gt;          &lt;dbl&gt;
+## 1 mae     standard        3.55</code></pre>
 </div>
 
 
